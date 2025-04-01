@@ -95,6 +95,9 @@
         $.ajax({
           url: API_BASE + "/user",
           method: "GET",
+          headers: {
+              Authorization: "Bearer " + token,
+            },
           success: function (res) {
             $("#profileName").text(res.name);
             $("#profileEmail").text(res.email);

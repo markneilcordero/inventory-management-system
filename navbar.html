@@ -40,6 +40,9 @@
         $.ajax({
           url: API_BASE + '/user',
           method: 'GET',
+          headers: {
+          Authorization: 'Bearer ' + token
+        },
           success: function (res) {
             $('#navbarLinks').html(`
               <li class="nav-item">
@@ -65,6 +68,9 @@
         $.ajax({
           url: API_BASE + '/logout',
           method: 'POST',
+          headers: {
+          Authorization: 'Bearer ' + token
+        },
           success: function () {
             localStorage.removeItem('inventory-management-system-token');
             window.location.href = 'login.html';
