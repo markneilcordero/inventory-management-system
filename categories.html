@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Categories - Inventory System</title>
+    <title>📂 Categories - Inventory System</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,23 +14,47 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        background-color: #f4f6f9;
       }
       .container {
         flex: 1;
       }
-      .category-table th,
-      .category-table td {
-        vertical-align: middle;
+      h2 {
+        font-weight: 700;
+        font-size: 2rem;
       }
-      .card-title {
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease-in-out;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+      }
+      .form-label {
         font-weight: 600;
+      }
+      .btn {
+        font-weight: 500;
       }
     </style>
   </head>
   <body>
     <div id="navbarContainer"></div>
+
     <div class="container my-5">
-      <h2 class="mb-4 text-center">Category Management</h2>
+      <h2 class="mb-4 text-center">📂 Category Management</h2>
+      <!-- Onboarding Note Card -->
+<div class="alert alert-info shadow-sm border-start border-4 border-primary mb-4" role="alert">
+    <h5 class="fw-bold mb-2">📘 How to Use Category Management</h5>
+    <ul class="mb-2 ps-3">
+      <li>➕ <strong>Add</strong> a category by typing its name and clicking the <strong>Add Category</strong> button.</li>
+      <li>✏️ <strong>Edit</strong> a category by changing the text in the input box and clicking <strong>Update</strong>.</li>
+      <li>🗑️ <strong>Delete</strong> a category permanently using the <strong>Delete</strong> button.</li>
+    </ul>
+    <p class="mb-0">🧠 Categories help group your products (e.g., Electronics, Office Supplies) for better inventory tracking.</p>
+  </div>
+  
       <div id="alertBox" class="alert d-none"></div>
 
       <div class="mb-4">
@@ -38,14 +62,14 @@
           id="addCategoryForm"
           class="d-flex flex-column flex-sm-row align-items-stretch gap-2"
         >
-          <input
-            type="text"
-            id="categoryName"
-            class="form-control"
-            placeholder="Enter category name"
-            required
-          />
-          <button type="submit" class="btn btn-success">Add Category</button>
+        <input
+        type="text"
+        id="categoryName"
+        class="form-control w-75"
+        placeholder="📁 e.g. Electronics, Office Supplies"
+        required
+      />
+          <button type="submit" class="btn btn-success">➕ Add Category</button>
         </form>
       </div>
 
@@ -65,24 +89,12 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="confirmDeleteModalLabel">
-              Confirm Deletion
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
+            <h5 class="modal-title" id="confirmDeleteModalLabel">❗ Confirm Deletion</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            Are you sure you want to delete this category?
-          </div>
+          <div class="modal-body">Are you sure you want to delete this category?</div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Cancel
             </button>
             <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
@@ -98,16 +110,15 @@
     <!-- Bootstrap + jQuery -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <script>
+        const API_BASE = "https://markneilcordero.com/inventory-management-system-api/public/api";
       $(document).ready(function () {
         $("#navbarContainer").load("navbar.html");
         $("#footerContainer").load("footer.html");
-      });
-      const API_BASE =
-        "https://markneilcordero.com/inventory-management-system-api/public/api";
 
-      $(document).ready(function () {
         const token = localStorage.getItem("inventory-management-system-token");
+
         if (!token) {
           window.location.href = "login.html";
           return;
@@ -124,28 +135,31 @@
           $.ajax({
             url: API_BASE + "/categories",
             method: "GET",
+            headers: {
+            Authorization: "Bearer " + token,
+          },
             success: function (res) {
               let cards = "";
               res.forEach((category) => {
                 cards += `
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">Category #${category.id}</h5>
-                <input type="text" class="form-control form-control-sm category-name mb-3" data-id="${category.id}" value="${category.name}" />
-                <div class="d-flex justify-content-end gap-2">
-                  <button class="btn btn-sm btn-success updateBtn" data-id="${category.id}">Update</button>
-                  <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">Delete</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                      <div class="card-body">
+                        <h5 class="card-title fw-bold">📁 Category #${category.id}</h5>
+                        <input type="text" class="form-control form-control-sm category-name mb-3" data-id="${category.id}" value="${category.name}" />
+                        <div class="d-flex justify-content-end gap-2">
+                          <button class="btn btn-sm btn-success updateBtn" data-id="${category.id}">💾 Update</button>
+                          <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">🗑️ Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `;
               });
               $("#categoryList").html(cards);
             },
             error: function () {
-              showAlert("Failed to load categories.", "danger");
+              showAlert("❌ Failed to load categories.", "danger");
             },
           });
         }
@@ -162,19 +176,20 @@
           $.ajax({
             url: API_BASE + "/categories",
             method: "POST",
+            headers: {
+            Authorization: "Bearer " + token,
+          },
             contentType: "application/json",
             data: JSON.stringify({ name }),
             success: function () {
               $("#addCategoryForm")[0].reset();
-              showAlert("Category added successfully!", "success");
+              showAlert("✅ Category added successfully!", "success");
               loadCategories();
             },
             error: function (xhr) {
-              let message = "Failed to add category.";
+              let message = "❌ Failed to add category.";
               if (xhr.responseJSON?.errors) {
-                message = Object.values(xhr.responseJSON.errors)
-                  .flat()
-                  .join("<br>");
+                message = Object.values(xhr.responseJSON.errors).flat().join("<br>");
               }
               showAlert(message, "danger");
             },
@@ -189,18 +204,19 @@
           $.ajax({
             url: `${API_BASE}/categories/${id}`,
             method: "PATCH",
+            headers: {
+            Authorization: "Bearer " + token,
+          },
             contentType: "application/json",
             data: JSON.stringify({ name }),
             success: function () {
-              showAlert("Category updated successfully!", "success");
+              showAlert("✅ Category updated successfully!", "success");
               loadCategories();
             },
             error: function (xhr) {
-              let message = "Failed to update category.";
+              let message = "❌ Failed to update category.";
               if (xhr.responseJSON?.errors) {
-                message = Object.values(xhr.responseJSON.errors)
-                  .flat()
-                  .join("<br>");
+                message = Object.values(xhr.responseJSON.errors).flat().join("<br>");
               }
               showAlert(message, "danger");
             },
@@ -209,12 +225,9 @@
 
         // Delete category
         let deleteCategoryId = null;
-
         window.deleteCategory = function (id) {
           deleteCategoryId = id;
-          const modal = new bootstrap.Modal(
-            document.getElementById("confirmDeleteModal")
-          );
+          const modal = new bootstrap.Modal(document.getElementById("confirmDeleteModal"));
           modal.show();
         };
 
@@ -224,12 +237,15 @@
           $.ajax({
             url: `${API_BASE}/categories/${deleteCategoryId}`,
             method: "DELETE",
+            headers: {
+            Authorization: "Bearer " + token,
+          },
             success: function () {
-              showAlert("Category deleted successfully!", "success");
+              showAlert("🗑️ Category deleted successfully!", "success");
               loadCategories();
             },
             error: function () {
-              showAlert("Failed to delete category.", "danger");
+              showAlert("❌ Failed to delete category.", "danger");
             },
             complete: function () {
               const modalEl = document.getElementById("confirmDeleteModal");

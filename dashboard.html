@@ -1,72 +1,94 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard - Inventory System</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <title>📊 Dashboard - Inventory System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      html,
-      body {
+      html, body {
         height: 100%;
         display: flex;
         flex-direction: column;
+        background-color: #f4f6f9;
       }
       .container {
         flex: 1;
       }
-      body {
-        background-color: #f4f6f9;
-      }
       .card-box {
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
         background-color: #fff;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
       .card-title {
         font-size: 1.1rem;
         font-weight: 600;
+        margin-bottom: 8px;
       }
       .card-value {
         font-size: 2rem;
         font-weight: 700;
         color: #007bff;
       }
+      h2 {
+        font-weight: bold;
+        font-size: 2rem;
+      }
+      canvas {
+        max-width: 100%;
+      }
+      .compact-chart {
+        max-height: 220px !important;
+      }
     </style>
   </head>
   <body>
     <div id="navbarContainer"></div>
+
     <div class="container my-5">
-      <h2 class="mb-4 text-center">Inventory Dashboard</h2>
+      <h2 class="text-center mb-5">📦 Inventory Dashboard</h2>
+      <!-- Onboarding Note Card -->
+<div class="alert alert-info shadow-sm border-start border-4 border-primary mb-4" role="alert">
+    <h5 class="fw-bold mb-2">👋 Welcome to your Inventory Dashboard!</h5>
+    <ul class="mb-0">
+      <li>📦 <strong>Total Products</strong>: Shows all products in your system.</li>
+      <li>📥 <strong>Stock In</strong>: Tracks inventory added.</li>
+      <li>📤 <strong>Stock Out</strong>: Tracks inventory sold or removed.</li>
+      <li>⚠️ <strong>Low Stock</strong>: Products below minimum quantity.</li>
+      <li>📊 <strong>Charts</strong>: Visual insights of your stock performance.</li>
+    </ul>
+    <div class="mt-3">
+      ✅ Tip: Navigate using the sidebar to manage products, categories, suppliers, and track movement!
+    </div>
+  </div>
+  
       <div id="alertBox" class="alert d-none"></div>
 
+      <!-- Metrics Section -->
       <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
           <div class="card-box text-center">
-            <div class="card-title">Total Products</div>
+            <div class="card-title">📦 Total Products</div>
             <div id="totalProducts" class="card-value">--</div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
           <div class="card-box text-center">
-            <div class="card-title">Stock In</div>
+            <div class="card-title">📥 Stock In</div>
             <div id="totalStockIn" class="card-value">--</div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
           <div class="card-box text-center">
-            <div class="card-title">Stock Out</div>
+            <div class="card-title">📤 Stock Out</div>
             <div id="totalStockOut" class="card-value">--</div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
           <div class="card-box text-center">
-            <div class="card-title">Low Stock Items</div>
+            <div class="card-title">⚠️ Low Stock Items</div>
             <div id="lowStockCount" class="card-value">--</div>
           </div>
         </div>
@@ -74,24 +96,24 @@
 
       <!-- Charts Section -->
       <div class="row g-4 mb-5">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="card-box">
-            <h5 class="text-center mb-3">Stock In vs Stock Out (Bar)</h5>
-            <canvas id="stockChart"></canvas>
+            <h5 class="text-center mb-3">📊 Stock In vs Out</h5>
+            <canvas id="stockChart" class="compact-chart"></canvas>
           </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="card-box">
-            <h5 class="text-center mb-3">Stock Distribution (Pie)</h5>
+            <h5 class="text-center mb-3">📈 Distribution</h5>
             <canvas id="pieChart"></canvas>
           </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-md-4">
           <div class="card-box">
-            <h5 class="text-center mb-3">Stock Flow Trend (Line)</h5>
-            <canvas id="lineChart"></canvas>
+            <h5 class="text-center mb-3">📉 Stock Trend</h5>
+            <canvas id="lineChart" class="compact-chart"></canvas>
           </div>
         </div>
       </div>
@@ -99,10 +121,10 @@
 
     <div id="footerContainer"></div>
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
-      const API_BASE =
-        "https://markneilcordero.com/inventory-management-system-api/public/api";
+      const API_BASE = "https://markneilcordero.com/inventory-management-system-api/public/api";
 
       $(document).ready(function () {
         $("#navbarContainer").load("navbar.html");
@@ -115,15 +137,16 @@
         }
 
         $.ajaxSetup({
-          headers: {
-            Authorization: "Bearer " + token,
-          },
+          headers: { Authorization: "Bearer " + token },
         });
 
         // Fetch Dashboard Summary
         $.ajax({
           url: API_BASE + "/dashboard/summary",
           method: "GET",
+          headers: {
+          Authorization: 'Bearer ' + token,
+        },
           success: function (res) {
             const totalIn = res.total_stock_in ?? 0;
             const totalOut = res.total_stock_out ?? 0;
@@ -148,6 +171,9 @@
           $.ajax({
             url: API_BASE + "/logout",
             method: "POST",
+            headers: {
+          Authorization: 'Bearer ' + token,
+        },
             success: function () {
               localStorage.removeItem("inventory-management-system-token");
               window.location.href = "login.html";
@@ -171,25 +197,19 @@
             type: "bar",
             data: {
               labels: ["Stock In", "Stock Out"],
-              datasets: [
-                {
-                  label: "Quantity",
-                  data: [stockIn, stockOut],
-                  backgroundColor: ["#28a745", "#dc3545"],
-                  borderRadius: 5,
-                },
-              ],
+              datasets: [{
+                label: "Quantity",
+                data: [stockIn, stockOut],
+                backgroundColor: ["#28a745", "#dc3545"],
+                borderRadius: 6,
+              }],
             },
             options: {
               responsive: true,
-              plugins: {
-                legend: { display: false },
-              },
+              plugins: { legend: { display: false } },
               scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
+                y: { beginAtZero: true }
+              }
             },
           });
 
@@ -198,19 +218,17 @@
             type: "pie",
             data: {
               labels: ["Stock In", "Stock Out"],
-              datasets: [
-                {
-                  data: [stockIn, stockOut],
-                  backgroundColor: ["#17a2b8", "#ffc107"],
-                },
-              ],
+              datasets: [{
+                data: [stockIn, stockOut],
+                backgroundColor: ["#17a2b8", "#ffc107"],
+              }],
             },
             options: {
               responsive: true,
             },
           });
 
-          // Line Chart (Dummy Time Series)
+          // Line Chart
           new Chart(document.getElementById("lineChart"), {
             type: "line",
             data: {
@@ -221,26 +239,24 @@
                   data: [10, 20, 15, 30, 25, stockIn],
                   borderColor: "#28a745",
                   backgroundColor: "rgba(40,167,69,0.2)",
-                  tension: 0.3,
                   fill: true,
+                  tension: 0.3,
                 },
                 {
                   label: "Stock Out",
                   data: [5, 10, 12, 20, 18, stockOut],
                   borderColor: "#dc3545",
                   backgroundColor: "rgba(220,53,69,0.2)",
-                  tension: 0.3,
                   fill: true,
+                  tension: 0.3,
                 },
               ],
             },
             options: {
               responsive: true,
               scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
+                y: { beginAtZero: true }
+              }
             },
           });
         }

@@ -54,6 +54,19 @@
 
     <div class="container my-5">
       <h2 class="text-center mb-4">Inventory Logs</h2>
+      <!-- Onboarding Note Card -->
+<div class="alert alert-info border-start border-4 border-primary shadow-sm mb-4" role="alert">
+    <h5 class="fw-bold">📘 How to Read Inventory Logs</h5>
+    <ul class="mb-2 ps-3">
+      <li><strong>🟢 IN</strong>: Logs that record added stock to a product.</li>
+      <li><strong>🔴 OUT</strong>: Logs that track stock removed from a product.</li>
+      <li>📋 Each log shows the <strong>product name</strong>, <strong>quantity</strong>, <strong>note</strong>, <strong>user</strong>, and <strong>timestamp</strong>.</li>
+      <li>🔄 Use the <strong>Refresh</strong> button to reload the latest entries.</li>
+      <li>📅 Use the pagination buttons to browse through log history.</li>
+    </ul>
+    <p class="mb-0">Stay informed of every change made to your inventory in real-time! 🕒</p>
+  </div>
+  
       <div id="alertBox" class="alert d-none"></div>
 
       <div class="mb-3 text-end">
@@ -103,6 +116,9 @@
           $.ajax({
             url: `${API_BASE}/inventory-log?page=${page}`,
             method: "GET",
+            headers: {
+            Authorization: "Bearer " + token,
+          },
             success: function (res) {
               let cards = "";
               res.data.forEach((log) => {

@@ -29,6 +29,17 @@
 
   <div class="container my-5">
     <h2 class="text-center mb-4">Stock Movement</h2>
+    <!-- Onboarding Note Card -->
+<div class="alert alert-info shadow-sm border-start border-4 border-primary mb-4" role="alert">
+    <h5 class="fw-bold mb-2">📌 How to Use Stock Movement</h5>
+    <ul class="mb-2 ps-3">
+      <li>📥 <strong>Stock In</strong>: Use this tab to add quantity to an existing product.</li>
+      <li>📤 <strong>Stock Out</strong>: Use this tab to deduct quantity when items are sold or used.</li>
+      <li>📝 <strong>Optional Notes</strong>: Leave a short description or reference for tracking.</li>
+    </ul>
+    <p class="mb-0">📊 A chart below will reflect the overall <strong>Stock In vs Stock Out</strong> totals in real-time.</p>
+  </div>
+  
     <div id="alertBox" class="alert d-none"></div>
 
     <ul class="nav nav-tabs mb-4" id="stockTabs" role="tablist">
@@ -124,6 +135,9 @@
         $.ajax({
           url: API_BASE + "/products",
           method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
           success: function (res) {
             let options = `<option value="" disabled selected>-- Select Product --</option>`;
             res.data.forEach((product) => {
@@ -141,6 +155,9 @@
         $.ajax({
           url: API_BASE + "/dashboard/summary",
           method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
           success: function (res) {
             renderChart(res.total_stock_in ?? 0, res.total_stock_out ?? 0);
           },
@@ -191,6 +208,9 @@
         $.ajax({
           url: API_BASE + "/stock-in",
           method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
           contentType: "application/json",
           data: JSON.stringify(data),
           success: function () {
@@ -220,6 +240,9 @@
         $.ajax({
           url: API_BASE + "/stock-out",
           method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
           contentType: "application/json",
           data: JSON.stringify(data),
           success: function () {
