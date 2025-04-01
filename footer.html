@@ -1,0 +1,19 @@
+<footer class="bg-dark text-white pt-4 pb-3 mt-5 shadow-sm">
+    <div class="container text-center">
+      <p class="mb-1 fs-6">
+        © <span id="footerYear"></span> <strong>Inventory System</strong>. All rights reserved.
+      </p>
+      <small>Designed and built by <strong>Mark Neil Cordero</strong></small>
+    </div>
+  </footer>
+  
+  <!-- jQuery + Bootstrap Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  
+  <script>
+    $(document).ready(function () {
+      $('#footerYear').text(new Date().getFullYear());
+    });
+  </script>
+  

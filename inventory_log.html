@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory Logs - Inventory System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .container {
+        flex: 1;
+      }
+      .log-table th,
+      .log-table td {
+        vertical-align: middle;
+      }
+      .log-type-in {
+        color: green;
+        font-weight: bold;
+      }
+      .log-type-out {
+        color: red;
+        font-weight: bold;
+      }
+      .log-type-in {
+        color: green;
+        font-weight: bold;
+      }
+      .log-type-out {
+        color: red;
+        font-weight: bold;
+      }
+      .card-log {
+        border-left: 5px solid transparent;
+      }
+      .card-log.in {
+        border-color: green;
+      }
+      .card-log.out {
+        border-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbarContainer"></div>
+
+    <div class="container my-5">
+      <h2 class="text-center mb-4">Inventory Logs</h2>
+      <div id="alertBox" class="alert d-none"></div>
+
+      <div class="mb-3 text-end">
+        <button class="btn btn-sm btn-outline-secondary" id="refreshBtn">
+          Refresh Logs
+        </button>
+      </div>
+
+      <div class="row" id="logCardContainer">
+        <!-- Log cards loaded here -->
+      </div>
+
+      <nav id="paginationNav" class="d-flex justify-content-center mt-4">
+        <!-- Pagination links -->
+      </nav>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <!-- Bootstrap + jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#navbarContainer").load("navbar.html");
+        $("#footerContainer").load("footer.html");
+      });
+      const API_BASE =
+        "https://markneilcordero.com/inventory-management-system-api/public/api";
+      let currentPage = 1;
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("inventory-management-system-token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        $.ajaxSetup({
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        // Load logs
+        function loadLogs(page = 1) {
+          $.ajax({
+            url: `${API_BASE}/inventory-log?page=${page}`,
+            method: "GET",
+            success: function (res) {
+              let cards = "";
+              res.data.forEach((log) => {
+                const typeClass =
+                  log.type === "in" ? "log-type-in" : "log-type-out";
+                const cardBorder = log.type === "in" ? "in" : "out";
+
+                cards += `
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card card-log ${cardBorder} shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-2">
+                  <span class="${typeClass}">${log.type.toUpperCase()}</span>
+                  <small class="text-muted float-end">#${log.id}</small>
+                </h5>
+                <p class="mb-1"><strong>Product:</strong> ${
+                  log.product?.name || "-"
+                }</p>
+                <p class="mb-1"><strong>Quantity:</strong> ${log.quantity}</p>
+                <p class="mb-1"><strong>Note:</strong> ${log.note || "-"}</p>
+                <p class="mb-1"><strong>User:</strong> ${
+                  log.user?.name || "-"
+                }</p>
+                <p class="mb-0"><strong>Date:</strong> ${new Date(
+                  log.created_at
+                ).toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        `;
+              });
+
+              $("#logCardContainer").html(cards);
+              renderPagination(res);
+            },
+            error: function () {
+              showAlert("Failed to load inventory logs.", "danger");
+            },
+          });
+        }
+
+        // Render pagination
+        function renderPagination(res) {
+          let links = "";
+
+          if (res.total > res.per_page) {
+            for (let i = 1; i <= res.last_page; i++) {
+              links += `
+              <li class="page-item ${i === res.current_page ? "active" : ""}">
+                <button class="page-link" data-page="${i}">${i}</button>
+              </li>
+            `;
+            }
+
+            $("#paginationNav").html(`<ul class="pagination">${links}</ul>`);
+          } else {
+            $("#paginationNav").empty();
+          }
+        }
+
+        // Pagination click
+        $(document).on("click", ".page-link", function () {
+          const page = $(this).data("page");
+          currentPage = page;
+          loadLogs(currentPage);
+        });
+
+        // Refresh logs
+        $("#refreshBtn").on("click", function () {
+          loadLogs(currentPage);
+        });
+
+        function showAlert(message, type) {
+          $("#alertBox")
+            .removeClass("d-none alert-success alert-danger")
+            .addClass("alert-" + type)
+            .html(message);
+        }
+
+        loadLogs(currentPage);
+      });
+    </script>
+  </body>
+</html>

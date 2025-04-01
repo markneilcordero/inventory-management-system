@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Add Supplier - Inventory System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .container {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbarContainer"></div>
+
+    <div class="container my-5">
+      <h2 class="mb-4 text-center">Add New Supplier</h2>
+      <div id="alertBox" class="alert d-none"></div>
+
+      <form
+        id="addSupplierForm"
+        class="card shadow p-4 mx-auto"
+        style="max-width: 600px"
+      >
+        <div class="mb-3">
+          <label for="supplierName" class="form-label">Name</label>
+          <input type="text" class="form-control" id="supplierName" required />
+        </div>
+        <div class="mb-3">
+          <label for="supplierEmail" class="form-label">Email</label>
+          <input type="email" class="form-control" id="supplierEmail" />
+        </div>
+        <div class="mb-3">
+          <label for="supplierPhone" class="form-label">Phone</label>
+          <input type="text" class="form-control" id="supplierPhone" />
+        </div>
+        <div class="mb-3">
+          <label for="supplierAddress" class="form-label">Address</label>
+          <input type="text" class="form-control" id="supplierAddress" />
+        </div>
+        <div class="d-flex justify-content-between">
+          <a href="suppliers.html" class="btn btn-secondary">Back</a>
+          <button type="submit" class="btn btn-success">Add Supplier</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <!-- Bootstrap + jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#navbarContainer").load("navbar.html");
+        $("#footerContainer").load("footer.html");
+      });
+      const API_BASE =
+        "https://markneilcordero.com/inventory-management-system-api/public/api";
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("inventory-management-system-token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        $.ajaxSetup({
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        $("#addSupplierForm").on("submit", function (e) {
+          e.preventDefault();
+
+          const data = {
+            name: $("#supplierName").val().trim(),
+            email: $("#supplierEmail").val().trim(),
+            phone: $("#supplierPhone").val().trim(),
+            address: $("#supplierAddress").val().trim(),
+          };
+
+          $.ajax({
+            url: API_BASE + "/suppliers",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function () {
+              showAlert("Supplier added successfully!", "success");
+              $("#addSupplierForm")[0].reset();
+            },
+            error: function (xhr) {
+              let message = "Failed to add supplier.";
+              if (xhr.responseJSON?.errors) {
+                message = Object.values(xhr.responseJSON.errors)
+                  .flat()
+                  .join("<br>");
+              }
+              showAlert(message, "danger");
+            },
+          });
+        });
+
+        function showAlert(message, type) {
+          $("#alertBox")
+            .removeClass("d-none alert-success alert-danger")
+            .addClass("alert-" + type)
+            .html(message);
+        }
+      });
+    </script>
+  </body>
+</html>

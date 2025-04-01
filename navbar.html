@@ -1,0 +1,90 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="dashboard.html">InventorySys</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navPages">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+          <li class="nav-item"><a class="nav-link" href="categories.html">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="suppliers.html">Suppliers</a></li>
+          <li class="nav-item"><a class="nav-link" href="stock_movement.html">Stock Movement</a></li>
+          <li class="nav-item"><a class="nav-link" href="inventory_log.html">Inventory Logs</a></li>
+        </ul>
+  
+        <ul class="navbar-nav ms-auto" id="navbarLinks">
+          <!-- Profile & Logout or Login/Register -->
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Remove duplicate jQuery and API_BASE -->
+  
+  <script>
+    $(document).ready(function () {
+      const token = localStorage.getItem('inventory-management-system-token');
+  
+      // Set default headers for all requests
+      $.ajaxSetup({
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      });
+  
+      // Try to fetch authenticated user
+      if (token) {
+        $.ajax({
+          url: API_BASE + '/user',
+          method: 'GET',
+          success: function (res) {
+            $('#navbarLinks').html(`
+              <li class="nav-item">
+                <a class="nav-link" href="profile.html">👤 ${res.name}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" id="logoutBtn">Logout</a>
+              </li>
+            `);
+          },
+          error: function () {
+            showGuestLinks();
+          }
+        });
+      } else {
+        showGuestLinks();
+      }
+  
+      // Logout functionality
+      $(document).on('click', '#logoutBtn', function (e) {
+        e.preventDefault();
+  
+        $.ajax({
+          url: API_BASE + '/logout',
+          method: 'POST',
+          success: function () {
+            localStorage.removeItem('inventory-management-system-token');
+            window.location.href = 'login.html';
+          },
+          error: function () {
+            alert('Logout failed.');
+          }
+        });
+      });
+  
+      function showGuestLinks() {
+        $('#navbarLinks').html(`
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html">Register</a>
+          </li>
+        `);
+      }
+    });
+  </script>
+  
